@@ -39,7 +39,7 @@ jobs:
         python allure_runner.py generate allure-results allure-report
         
     - name: Upload Allure report as artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: allure-report
         path: allure-report/
