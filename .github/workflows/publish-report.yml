@@ -32,6 +32,11 @@ jobs:
       run: |
         playwright install
         playwright install-deps
+
+    - name: Start Xvfb
+      run: |
+        export DISPLAY=:99
+        Xvfb :99 &
         
     - name: Run tests with Allure
       run: |
