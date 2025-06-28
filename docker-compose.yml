@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  test-automation:
+    build: .
+    container_name: playwright-test-automation
+    volumes:
+      - ./allure-results:/app/allure-results
+      - ./allure-report:/app/allure-report
+      - ./screenshots:/app/screenshots
+      - ./test.log:/app/test.log
+    environment:
+      - PYTHONPATH=/app
+      - DISPLAY=:99
+    ports:
+      - "8080:8080"
+    command: pytest tests/ --alluredir=allure-results -v
+
+  allure-serve:
+    build: .
+    container_name: allure-serve
+    volumes:
+      - ./allure-results:/app/allure-results
+    ports:
+      - "8080:8080"
+    command: allure serve allure-results --host 0.0.0.0 --port 8080
+
+  allure-generate:
+    build: .
+    container_name: allure-generate
+    volumes:
+      - ./allure-results:/app/allure-results
+      - ./allure-report:/app/allure-report
+    command: allure generate allure-results --clean -o allure-report
+
+  test-parallel:
+    build: .
+    container_name: playwright-parallel
+    volumes:
+      - ./allure-results:/app/allure-results
+      - ./allure-report:/app/allure-report
+      - ./screenshots:/app/screenshots
+    environment:
+      - PYTHONPATH=/app
+    command: pytest tests/ --alluredir=allure-results -n auto -v
+
+  test-chrome:
+    build: .
+    container_name: playwright-chrome
+    volumes:
+      - ./allure-results:/app/allure-results
+      - ./screenshots:/app/screenshots
+    environment:
+      - PYTHONPATH=/app
+    command: pytest tests/ --alluredir=allure-results --test-browser=chromium -v
+
+  test-firefox:
+    build: .
+    container_name: playwright-firefox
+    volumes:
+      - ./allure-results:/app/allure-results
+      - ./screenshots:/app/screenshots
+    environment:
+      - PYTHONPATH=/app
+    command: pytest tests/ --alluredir=allure-results --test-browser=firefox -v
+
+  test-webkit:
+    build: .
+    container_name: playwright-webkit
+    volumes:
+      - ./allure-results:/app/allure-results
+      - ./screenshots:/app/screenshots
+    environment:
+      - PYTHONPATH=/app
+    command: pytest tests/ --alluredir=allure-results --test-browser=webkit -v 

@@ -1,0 +1,236 @@
+# utils/allure_helpers.py
+
+import allure
+import json
+import os
+from datetime import datetime
+from typing import Dict, Any, Optional
+
+class AllureReporter:
+    """Helper class để tạo Allure report với step-by-step chi tiết"""
+    
+    @staticmethod
+    @allure.step("Navigate to {url}")
+    def navigate_to(url: str):
+        """Step: Navigate to URL"""
+        allure.attach(
+            f"Navigating to: {url}",
+            "Navigation Step",
+            allure.attachment_type.TEXT
+        )
+        return url
+    
+    @staticmethod
+    @allure.step("Login with username: {username}")
+    def login_step(username: str, password: str = "***"):
+        """Step: Login action"""
+        allure.attach(
+            f"Username: {username}\nPassword: {password}",
+            "Login Credentials",
+            allure.attachment_type.TEXT
+        )
+        return {"username": username, "password": password}
+    
+    @staticmethod
+    @allure.step("Fill field {field_name} with value: {value}")
+    def fill_field_step(field_name: str, value: str):
+        """Step: Fill form field"""
+        allure.attach(
+            f"Field: {field_name}\nValue: {value}",
+            "Field Input",
+            allure.attachment_type.TEXT
+        )
+        return {"field": field_name, "value": value}
+    
+    @staticmethod
+    @allure.step("Click on element: {element_name}")
+    def click_element_step(element_name: str, selector: str = ""):
+        """Step: Click element"""
+        allure.attach(
+            f"Element: {element_name}\nSelector: {selector}",
+            "Click Action",
+            allure.attachment_type.TEXT
+        )
+        return {"element": element_name, "selector": selector}
+    
+    @staticmethod
+    @allure.step("Validate element: {element_name}")
+    def validate_element_step(element_name: str, expected_state: str):
+        """Step: Validate element state"""
+        allure.attach(
+            f"Element: {element_name}\nExpected: {expected_state}",
+            "Validation",
+            allure.attachment_type.TEXT
+        )
+        return {"element": element_name, "expected": expected_state}
+    
+    @staticmethod
+    @allure.step("Take screenshot: {description}")
+    def take_screenshot_step(page, description: str = "Screenshot"):
+        """Step: Take screenshot"""
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        screenshot_path = f"screenshots/allure_{timestamp}.png"
+        
+        # Đảm bảo thư mục tồn tại
+        os.makedirs(os.path.dirname(screenshot_path), exist_ok=True)
+        
+        # Chụp screenshot
+        page.screenshot(path=screenshot_path, full_page=True)
+        
+        # Attach vào Allure
+        with open(screenshot_path, "rb") as f:
+            allure.attach(
+                f.read(),
+                f"{description} - {timestamp}",
+                allure.attachment_type.PNG
+            )
+        
+        return screenshot_path
+    
+    @staticmethod
+    @allure.step("API Request: {method} {endpoint}")
+    def api_request_step(method: str, endpoint: str, data: Optional[Dict] = None):
+        """Step: API request"""
+        request_info = {
+            "method": method,
+            "endpoint": endpoint,
+            "data": data
+        }
+        
+        allure.attach(
+            json.dumps(request_info, indent=2),
+            "API Request",
+            allure.attachment_type.JSON
+        )
+        
+        return request_info
+    
+    @staticmethod
+    @allure.step("API Response: {status_code}")
+    def api_response_step(status_code: int, response_data: Optional[Dict] = None):
+        """Step: API response"""
+        response_info = {
+            "status_code": status_code,
+            "data": response_data
+        }
+        
+        allure.attach(
+            json.dumps(response_info, indent=2),
+            "API Response",
+            allure.attachment_type.JSON
+        )
+        
+        return response_info
+    
+    @staticmethod
+    @allure.step("Wait for element: {element_name}")
+    def wait_for_element_step(element_name: str, timeout: int = 5000):
+        """Step: Wait for element"""
+        allure.attach(
+            f"Element: {element_name}\nTimeout: {timeout}ms",
+            "Wait Action",
+            allure.attachment_type.TEXT
+        )
+        return {"element": element_name, "timeout": timeout}
+    
+    @staticmethod
+    @allure.step("Assert condition: {condition}")
+    def assert_step(condition: str, expected: Any, actual: Any):
+        """Step: Assertion"""
+        assertion_info = {
+            "condition": condition,
+            "expected": expected,
+            "actual": actual
+        }
+        
+        allure.attach(
+            json.dumps(assertion_info, indent=2),
+            "Assertion",
+            allure.attachment_type.JSON
+        )
+        
+        return assertion_info
+    
+    @staticmethod
+    @allure.step("Test Data: {data_type}")
+    def test_data_step(data_type: str, data: Dict):
+        """Step: Test data usage"""
+        allure.attach(
+            json.dumps(data, indent=2),
+            f"Test Data - {data_type}",
+            allure.attachment_type.JSON
+        )
+        return data
+    
+    @staticmethod
+    @allure.step("Environment Info")
+    def environment_step(browser: str, base_url: str, environment: str = "dev"):
+        """Step: Environment information"""
+        env_info = {
+            "browser": browser,
+            "base_url": base_url,
+            "environment": environment,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        allure.attach(
+            json.dumps(env_info, indent=2),
+            "Environment",
+            allure.attachment_type.JSON
+        )
+        
+        return env_info
+    
+    @staticmethod
+    def add_description(description: str):
+        """Thêm mô tả cho test case"""
+        allure.description(description)
+    
+    @staticmethod
+    def add_severity(severity: str):
+        """Thêm mức độ nghiêm trọng"""
+        allure.severity(severity)
+    
+    @staticmethod
+    def add_feature(feature: str):
+        """Thêm feature"""
+        allure.feature(feature)
+    
+    @staticmethod
+    def add_story(story: str):
+        """Thêm story"""
+        allure.story(story)
+    
+    @staticmethod
+    def add_issue(issue_id: str):
+        """Thêm issue link"""
+        allure.issue(issue_id)
+    
+    @staticmethod
+    def add_test_case(test_case_id: str):
+        """Thêm test case ID"""
+        allure.testcase(test_case_id)
+
+# Decorators tiện ích
+def allure_step(step_name: str):
+    """Decorator để tạo step với tên tùy chỉnh"""
+    def decorator(func):
+        @allure.step(step_name)
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+def allure_attach_screenshot(page, description: str = "Screenshot"):
+    """Decorator để tự động attach screenshot"""
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            try:
+                result = func(*args, **kwargs)
+                AllureReporter.take_screenshot_step(page, description)
+                return result
+            except Exception as e:
+                AllureReporter.take_screenshot_step(page, f"Error - {description}")
+                raise e
+        return wrapper
+    return decorator 

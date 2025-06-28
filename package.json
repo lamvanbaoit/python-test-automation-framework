@@ -1,0 +1,64 @@
+{
+  "name": "python-test-automation-framework",
+  "version": "1.0.0",
+  "description": "Complete Python Test Automation Framework with Playwright, Pytest, and Allure",
+  "main": "index.js",
+  "scripts": {
+    "test": "pytest tests/ -v",
+    "test:allure": "pytest tests/ --alluredir=allure-results -v",
+    "test:parallel": "pytest tests/ --alluredir=allure-results -n auto -v",
+    "test:chrome": "pytest tests/ --alluredir=allure-results --test-browser=chromium -v",
+    "test:firefox": "pytest tests/ --alluredir=allure-results --test-browser=firefox -v",
+    "test:webkit": "pytest tests/ --alluredir=allure-results --test-browser=webkit -v",
+    "allure:serve": "allure serve allure-results",
+    "allure:serve:npm": "npx allure serve allure-results",
+    "allure:serve:local": "python allure_runner.py serve allure-results",
+    "allure:generate": "allure generate allure-results --clean -o allure-report",
+    "allure:generate:npm": "npx allure generate allure-results --clean -o allure-report",
+    "allure:generate:local": "python allure_runner.py generate allure-results allure-report",
+    "allure:open": "allure open allure-report",
+    "allure:open:npm": "npx allure open allure-report",
+    "allure:open:local": "python allure_runner.py open allure-report",
+    "allure:open:auto": "python open_allure_report.py auto",
+    "report:html": "pytest tests/ --html=report.html --self-contained-html",
+    "demo": "python run_allure_demo.py",
+    "docker:build": "docker build -t test-automation .",
+    "docker:run": "docker run -v $(pwd)/allure-results:/app/allure-results -v $(pwd)/allure-report:/app/allure-report test-automation",
+    "docker:serve": "docker-compose up allure-serve",
+    "docker:test": "docker-compose up test-automation",
+    "docker:parallel": "docker-compose up test-parallel",
+    "docker:chrome": "docker-compose up test-chrome",
+    "docker:firefox": "docker-compose up test-firefox",
+    "docker:webkit": "docker-compose up test-webkit",
+    "clean": "rm -rf allure-results allure-report screenshots test.log report.html",
+    "setup": "pip install -r requirements.txt && playwright install",
+    "setup:allure": "npm install -g allure-commandline",
+    "lint": "flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics",
+    "format": "black .",
+    "security": "bandit -r . -f json -o bandit-report.json"
+  },
+  "keywords": [
+    "python",
+    "test-automation",
+    "playwright",
+    "pytest",
+    "allure",
+    "selenium",
+    "api-testing",
+    "grpc",
+    "ci-cd"
+  ],
+  "author": "Test Automation Team",
+  "license": "MIT",
+  "devDependencies": {
+    "allure-commandline": "^2.24.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/playwright-test-automation.git"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
+} 
