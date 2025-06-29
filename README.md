@@ -1,13 +1,76 @@
 # Python Test Automation Framework
 
-[![Test Automation Framework](https://github.com/lamvanbaoit/python-test-automation-framework/workflows/Test%20Automation%20Framework/badge.svg)](https://github.com/lamvanbaoit/python-test-automation-framework/actions)
-[![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
-[![Playwright](https://img.shields.io/badge/playwright-1.44%2B-green.svg)](https://playwright.dev/)
-[![Allure](https://img.shields.io/badge/allure-2.24%2B-orange.svg)](https://docs.qameta.io/allure/)
+## 🚀 Tổng quan
+Framework tự động hoá kiểm thử UI/API/gRPC sử dụng Playwright, Pytest, Allure, CI/CD, hỗ trợ POM, mass testing, performance, báo cáo đẹp, tối ưu cho team.
 
-Framework test automation hoàn chỉnh sử dụng **Playwright + Pytest + Page Object Model (POM)** với hỗ trợ UI Testing, API Testing, gRPC Testing và **Allure Framework** cho report step-by-step chuyên nghiệp.
+---
 
-> 🚀 **Mới?** Xem [QUICK_START.md](QUICK_START.md) để chạy nhanh trong 5 phút!
+## 1. Cài đặt
+```bash
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+- **Lưu ý:**
+  - pytest >=7.0.0,<8.0.0
+  - pytest-asyncio==0.21.1
+  - allure-pytest>=2.13.2
+
+## 2. Chạy test
+```bash
+pytest tests/ --alluredir=allure-results --html=report.html --self-contained-html -v --headless
+```
+- Có thể chọn browser: `--test-browser=chromium|firefox|webkit`
+- Có thể chạy song song: `-n auto`
+
+## 3. Xuất Allure report
+```bash
+allure generate allure-results --clean -o allure-report
+allure open allure-report
+```
+- **Không mở file allure-report/index.html trực tiếp bằng file:// trên browser!**
+- Nếu chưa có Allure CLI:
+  ```bash
+  brew install allure
+  # hoặc sudo apt-get install -y allure
+  ```
+
+## 4. Dọn dẹp file tạm
+- Đã ignore: __pycache__/, *.pyc, allure-results/, allure-report/, screenshots/, test.log, report.html, videos/
+- Có thể xoá thêm file backup, demo, cache nếu cần.
+
+## 5. CI/CD & Mass Testing
+- Đã tích hợp workflow GitHub Actions:
+  - Lint, type check, test đa trình duyệt, đa Python
+  - Mass testing 1000+ test case, performance, artifact
+  - Tự động xuất Allure report, upload artifact, deploy GitHub Pages
+
+## 6. Hướng dẫn nhanh
+- Xem QUICK_START.md, ALLURE_GUIDE.md, OPEN_REPORT_GUIDE.md, MASS_TESTING_GUIDE.md để biết chi tiết.
+
+---
+
+## 📦 Cấu trúc thư mục
+- `pages/` - Page Object Model
+- `tests/` - Test case UI/API/gRPC
+- `utils/` - Helper, performance, validator
+- `api_clients/` - API/gRPC client
+- `config/` - Cấu hình
+- `scripts/` - Script tool, mass test runner
+- `test_data/` - Data manager
+- `conftest.py` - Pytest config
+
+---
+
+## 🏆 Best Practice
+- Luôn chạy test với headless trên CI/CD
+- Luôn sinh Allure report qua CLI
+- Dọn dẹp file tạm định kỳ
+- Đọc kỹ các file hướng dẫn đi kèm
+
+---
+
+## 📣 Liên hệ/Đóng góp
+- Đóng góp issue, PR, feedback tại repo này!
 
 ## 🚀 Features
 
