@@ -3,7 +3,7 @@
 import pytest
 import allure
 from pages.login_page import LoginPage
-from utils.common_functions import get_random_user
+from utils.helpers import get_test_user
 from utils.allure_helpers import AllureReporter
 
 # Test class kiểm thử chức năng đăng nhập với Allure step-by-step reporting
@@ -14,10 +14,13 @@ from utils.allure_helpers import AllureReporter
 Test login functionality with step-by-step reporting.
 This test demonstrates Allure Framework integration with detailed steps.
 """)
+@pytest.mark.ui
+@pytest.mark.allure
 class TestLoginWithAllure:
     
     @allure.testcase("TC001", "Login Success Test")
     @allure.issue("BUG-001", "https://jira.example.com/browse/BUG-001")
+    @pytest.mark.smoke
     def test_login_success_with_steps(self, page, request):
         """Test đăng nhập thành công với báo cáo từng bước Allure"""
         
@@ -44,7 +47,7 @@ class TestLoginWithAllure:
         assert login_page.is_login_button_enabled()
         
         # Bước 3: Chuẩn bị dữ liệu test
-        user = get_random_user()
+        user = get_test_user()
         AllureReporter.test_data_step("Login User", user)
         
         # Bước 4: Điền username
@@ -75,6 +78,7 @@ class TestLoginWithAllure:
 
     @allure.testcase("TC002", "Login Failure Test")
     @allure.severity(allure.severity_level.NORMAL)
+    @pytest.mark.regression
     def test_login_failure_with_steps(self, page):
         """Test đăng nhập thất bại với báo cáo từng bước Allure"""
         
@@ -123,6 +127,7 @@ class TestLoginWithAllure:
 
     @allure.testcase("TC003", "Login with Locked User")
     @allure.severity(allure.severity_level.NORMAL)
+    @pytest.mark.regression
     def test_login_locked_user_with_steps(self, page):
         """Test đăng nhập với locked user"""
         
@@ -172,6 +177,8 @@ class TestLoginWithAllure:
 # Test function kiểm thử đăng nhập với parametrize và Allure
 @allure.feature("Authentication")
 @allure.story("Login Parametrized")
+@pytest.mark.ui
+@pytest.mark.allure
 @pytest.mark.parametrize(
     "username,password,expected_success,expected_error",
     [
@@ -200,13 +207,13 @@ def test_login_parametrized_with_allure(page, username, password, expected_succe
     
     # Bước 3: Điền thông tin đăng nhập
     AllureReporter.fill_field_step("Username", username)
-    AllureReporter.fill_field_step("Password", "***" if password else "")
+    AllureReporter.fill_field_step("Password", "***")
     
     login_page.fill_field(login_page.selectors["username"], username)
     login_page.fill_field(login_page.selectors["password"], password)
     
     # Bước 4: Chụp màn hình trước khi login
-    AllureReporter.take_screenshot_step(page, f"Before Login - {username}")
+    AllureReporter.take_screenshot_step(page, "Before Parametrized Login")
     
     # Bước 5: Click login
     AllureReporter.click_element_step("Login Button", login_page.selectors["login_button"])
@@ -214,28 +221,21 @@ def test_login_parametrized_with_allure(page, username, password, expected_succe
     
     # Bước 6: Xử lý kết quả
     if expected_success:
-        # Bước 6a: Đợi thành công
+        # Nếu mong đợi thành công
         AllureReporter.wait_for_element_step("Inventory page", 10000)
         page.wait_for_load_state("networkidle", timeout=10000)
-        
-        # Bước 6b: Chụp màn hình thành công
-        AllureReporter.take_screenshot_step(page, f"Login Success - {username}")
-        
-        # Bước 6c: Kiểm tra thành công
+        AllureReporter.take_screenshot_step(page, "After Successful Login")
         AllureReporter.assert_step("Login successful", True, login_page.is_logged_in())
         assert login_page.is_logged_in()
     else:
-        # Bước 6a: Đợi thông báo lỗi
+        # Nếu mong đợi thất bại
         AllureReporter.wait_for_element_step("Error message", 5000)
         page.wait_for_selector(login_page.selectors["error_message"], timeout=5000)
+        AllureReporter.take_screenshot_step(page, "Login Error")
         
-        # Bước 6b: Chụp màn hình lỗi
-        AllureReporter.take_screenshot_step(page, f"Login Error - {username}")
-        
-        # Bước 6c: Kiểm tra thông báo lỗi
         error_message = login_page.get_error_message()
         AllureReporter.assert_step(
-            "Error message validation",
+            "Error message matches expected",
             expected_error,
             error_message
         )

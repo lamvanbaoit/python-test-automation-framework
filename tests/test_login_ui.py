@@ -5,6 +5,8 @@ from pages.login_page import LoginPage
 from utils.helpers import get_test_user
 
 # Test kiểm thử đăng nhập với nhiều bộ dữ liệu khác nhau (parametrize)
+@pytest.mark.ui
+@pytest.mark.regression
 @pytest.mark.parametrize(
     "username,password,expected_success,expected_error",
     [
@@ -29,7 +31,8 @@ def test_login_parametrized(page, username, password, expected_success, expected
         assert expected_error in login_page.get_error_message()
 
 # Test kiểm thử đăng nhập thành công và kiểm tra các trường trên form
-
+@pytest.mark.ui
+@pytest.mark.smoke
 def test_login_success(page):
     login_page = LoginPage(page)
     login_page.goto()

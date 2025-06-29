@@ -172,9 +172,11 @@ def allure_environment(request):
     browser = request.config.getoption("--test-browser")
     base_url = request.config.getoption("--app-base-url")
     headless = request.config.getoption("--headless")
+    
     # Tạo thư mục allure-results nếu chưa có
     allure_results_dir = "allure-results"
     os.makedirs(allure_results_dir, exist_ok=True)
+    
     # Ghi thông tin môi trường vào file
     env_file = os.path.join(allure_results_dir, "environment.properties")
     with open(env_file, "w") as f:
@@ -184,6 +186,12 @@ def allure_environment(request):
         f.write(f"Platform={os.name}\n")
         f.write(f"PythonVersion={sys.version}\n")
         f.write(f"Timestamp={datetime.now().isoformat()}\n")
+        f.write(f"Framework=Playwright+Pytest+Allure\n")
+        f.write(f"CI={os.getenv('CI', 'false')}\n")
+        f.write(f"GitHubActions={os.getenv('GITHUB_ACTIONS', 'false')}\n")
+        f.write(f"Runner={os.getenv('RUNNER_OS', 'unknown')}\n")
+        f.write(f"NodeName={os.getenv('NODE_NAME', 'local')}\n")
+    
     return {
         "browser": browser,
         "base_url": base_url,

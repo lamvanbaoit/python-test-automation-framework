@@ -1,10 +1,18 @@
 # tests/test_order_grpc.py
 
-# Test kiểm thử lấy thông tin đơn hàng qua gRPC client
+import pytest
+from api_clients.order_grpc_client import OrderGrpcClient
 
-def test_get_order_grpc(grpc_client):
-    order_id = "12345"  # ID đơn hàng mẫu
-    response = grpc_client.get_order(order_id)
-    # Kiểm tra response trả về đúng order_id và status dummy
-    assert response["order_id"] == order_id
-    assert response["status"] == "DUMMY" 
+@pytest.mark.grpc
+@pytest.mark.regression
+def test_get_order_grpc():
+    """Test gRPC lấy thông tin order"""
+    grpc_client = OrderGrpcClient()
+    
+    # Test get order
+    order = grpc_client.get_order("ORDER_123")
+    
+    # Kiểm tra response
+    assert order is not None
+    assert order["order_id"] == "ORDER_123"
+    assert order["status"] in ["pending", "completed", "cancelled"] 

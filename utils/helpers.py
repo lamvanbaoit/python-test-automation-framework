@@ -2,4 +2,5 @@
 
 def get_test_user():
     """Hàm trả về user test mẫu (dùng cho test login UI/API)"""
-    return {"username": "testuser", "password": "password123"} 
+    # Sử dụng credentials đúng cho saucedemo.com
+    return {"username": "standard_user", "password": "secret_sauce"} 

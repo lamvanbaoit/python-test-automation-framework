@@ -1,5 +1,10 @@
 # Python Test Automation Framework
 
+[![Test Automation Framework](https://github.com/lamvanbaoit/python-test-automation-framework/workflows/Test%20Automation%20Framework/badge.svg)](https://github.com/lamvanbaoit/python-test-automation-framework/actions)
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![Playwright](https://img.shields.io/badge/playwright-1.44%2B-green.svg)](https://playwright.dev/)
+[![Allure](https://img.shields.io/badge/allure-2.24%2B-orange.svg)](https://docs.qameta.io/allure/)
+
 Framework test automation hoàn chỉnh sử dụng **Playwright + Pytest + Page Object Model (POM)** với hỗ trợ UI Testing, API Testing, gRPC Testing và **Allure Framework** cho report step-by-step chuyên nghiệp.
 
 > 🚀 **Mới?** Xem [QUICK_START.md](QUICK_START.md) để chạy nhanh trong 5 phút!
@@ -156,6 +161,71 @@ pytest --app-base-url=https://staging.example.com
 
 # Chạy song song
 pytest -n auto
+```
+
+### Chạy theo nhóm test
+```bash
+# Smoke tests (nhanh)
+pytest -m smoke
+
+# Regression tests (đầy đủ)
+pytest -m regression
+
+# UI tests
+pytest -m ui
+
+# API tests
+pytest -m api
+
+# gRPC tests
+pytest -m grpc
+
+# Allure tests
+pytest -m allure
+```
+
+## 🛠️ Development Tools
+
+### Code Quality Tools
+```bash
+# Format code
+python scripts/dev_tools.py format
+
+# Lint code
+python scripts/dev_tools.py lint
+
+# Type check
+python scripts/dev_tools.py type
+
+# Chạy tất cả checks
+python scripts/dev_tools.py all
+```
+
+### Test Tools
+```bash
+# Chạy tests nhanh
+python scripts/dev_tools.py test
+
+# Chạy smoke tests
+python scripts/dev_tools.py smoke
+
+# Chạy tests với Allure
+python scripts/dev_tools.py allure
+
+# Mở Allure report
+python scripts/dev_tools.py report
+```
+
+### Manual Commands
+```bash
+# Format code với Black
+black .
+
+# Lint với Flake8
+flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+# Type check với MyPy
+mypy . --ignore-missing-imports
 ```
 
 ## 📊 Reporting

@@ -78,7 +78,7 @@ class CommonFunctions:
         return path
     
     @staticmethod
-    def wait_for_page_load(page, timeout: int = 30000) -> bool:
+    def wait_for_page_load(page, timeout: int = 10000) -> bool:
         """Chờ trang load xong (networkidle)"""
         try:
             page.wait_for_load_state("networkidle", timeout=timeout)
