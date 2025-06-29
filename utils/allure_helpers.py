@@ -11,7 +11,6 @@ class AllureReporter:
     """Helper class để tạo Allure report với step-by-step chi tiết"""
     
     @staticmethod
-    @allure.step("Navigate to {url}")
     def navigate_to(url: str):
         """Step: Điều hướng tới một URL cụ thể"""
         allure.attach(
@@ -22,7 +21,6 @@ class AllureReporter:
         return url
     
     @staticmethod
-    @allure.step("Login with username: {username}")
     def login_step(username: str, password: str = "***"):
         """Step: Thực hiện login với username và password"""
         allure.attach(
@@ -33,7 +31,6 @@ class AllureReporter:
         return {"username": username, "password": password}
     
     @staticmethod
-    @allure.step("Fill field {field_name} with value: {value}")
     def fill_field_step(field_name: str, value: str):
         """Step: Điền dữ liệu vào một trường trên form"""
         allure.attach(
@@ -44,7 +41,6 @@ class AllureReporter:
         return {"field": field_name, "value": value}
     
     @staticmethod
-    @allure.step("Click on element: {element_name}")
     def click_element_step(element_name: str, selector: str = ""):
         """Step: Click vào một phần tử trên trang"""
         allure.attach(
@@ -55,7 +51,6 @@ class AllureReporter:
         return {"element": element_name, "selector": selector}
     
     @staticmethod
-    @allure.step("Validate element: {element_name}")
     def validate_element_step(element_name: str, expected_state: str):
         """Step: Kiểm tra trạng thái của một phần tử (hiển thị, enable, ... )"""
         allure.attach(
@@ -66,7 +61,6 @@ class AllureReporter:
         return {"element": element_name, "expected": expected_state}
     
     @staticmethod
-    @allure.step("Take screenshot: {description}")
     def take_screenshot_step(page, description: str = "Screenshot"):
         """Step: Chụp màn hình và attach vào Allure report"""
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -85,7 +79,6 @@ class AllureReporter:
         return screenshot_path
     
     @staticmethod
-    @allure.step("API Request: {method} {endpoint}")
     def api_request_step(method: str, endpoint: str, data: Optional[Dict] = None):
         """Step: Ghi lại thông tin request API"""
         request_info = {
@@ -101,7 +94,6 @@ class AllureReporter:
         return request_info
     
     @staticmethod
-    @allure.step("API Response: {status_code}")
     def api_response_step(status_code: int, response_data: Optional[Dict] = None):
         """Step: Ghi lại thông tin response API"""
         response_info = {
@@ -116,7 +108,6 @@ class AllureReporter:
         return response_info
     
     @staticmethod
-    @allure.step("Wait for element: {element_name}")
     def wait_for_element_step(element_name: str, timeout: int = 5000):
         """Step: Chờ đợi một phần tử xuất hiện trên trang"""
         allure.attach(
@@ -127,7 +118,6 @@ class AllureReporter:
         return {"element": element_name, "timeout": timeout}
     
     @staticmethod
-    @allure.step("Assert condition: {condition}")
     def assert_step(condition: str, expected: Any, actual: Any):
         """Step: Ghi lại thông tin so sánh/kiểm tra (assert)"""
         assertion_info = {
@@ -143,7 +133,6 @@ class AllureReporter:
         return assertion_info
     
     @staticmethod
-    @allure.step("Test Data: {data_type}")
     def test_data_step(data_type: str, data: Dict):
         """Step: Ghi lại dữ liệu test sử dụng trong testcase"""
         allure.attach(
@@ -154,7 +143,6 @@ class AllureReporter:
         return data
     
     @staticmethod
-    @allure.step("Environment Info")
     def environment_step(browser: str, base_url: str, environment: str = "dev"):
         """Step: Ghi lại thông tin môi trường test"""
         env_info = {

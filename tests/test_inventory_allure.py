@@ -2,8 +2,10 @@
 
 import pytest
 import allure
-from pages.login_page import LoginPage
-from pages.inventory_page import InventoryPage
+from playwright.sync_api import Page
+from pages.auth.login_page import LoginPage
+from pages.inventory.inventory_page import InventoryPage
+from utils.helpers import get_test_user
 from utils.allure_helpers import AllureReporter
 from utils.common_functions import CommonFunctions
 
@@ -22,7 +24,7 @@ class TestInventoryWithAllure:
         login_page = LoginPage(page)
         login_page.goto()
         
-        user = CommonFunctions.generate_test_data("user")
+        user = get_test_user()
         AllureReporter.test_data_step("Login User", user)
         
         AllureReporter.fill_field_step("Username", user["username"])
@@ -64,7 +66,7 @@ class TestInventoryWithAllure:
         login_page = LoginPage(page)
         login_page.goto()
         
-        user = CommonFunctions.generate_test_data("user")
+        user = get_test_user()
         login_page.login(user["username"], user["password"])
         
         inventory_page = InventoryPage(page)
@@ -98,7 +100,7 @@ class TestInventoryWithAllure:
         login_page = LoginPage(page)
         login_page.goto()
         
-        user = CommonFunctions.generate_test_data("user")
+        user = get_test_user()
         login_page.login(user["username"], user["password"])
         
         inventory_page = InventoryPage(page)
@@ -124,11 +126,12 @@ class TestInventoryWithAllure:
         login_page = LoginPage(page)
         login_page.goto()
         
-        user = CommonFunctions.generate_test_data("user")
+        user = get_test_user()
         login_page.login(user["username"], user["password"])
+        login_page.custom_assert(login_page.is_logged_in(), "Login failed! Check credentials or page state.")
         
         inventory_page = InventoryPage(page)
-        inventory_page.goto()
+        inventory_page.validate_inventory_page()
         
         # Bước 2: Kiểm tra các thành phần chính
         AllureReporter.validate_element_step("Inventory container", "visible")

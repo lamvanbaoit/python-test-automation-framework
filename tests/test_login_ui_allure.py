@@ -2,8 +2,9 @@
 
 import pytest
 import allure
-from pages.login_page import LoginPage
-from utils.helpers import get_test_user
+from playwright.sync_api import Page
+from pages.auth.login_page import LoginPage
+from utils.helpers import get_random_user, get_test_user, get_test_users
 from utils.allure_helpers import AllureReporter
 
 # Test class kiểm thử chức năng đăng nhập với Allure step-by-step reporting
@@ -22,16 +23,16 @@ class TestLoginWithAllure:
     @allure.issue("BUG-001", "https://jira.example.com/browse/BUG-001")
     @pytest.mark.smoke
     def test_login_success_with_steps(self, page, request):
-        """Test đăng nhập thành công với báo cáo từng bước Allure"""
+        """Test login success với step-by-step reporting"""
         
-        # Thông tin môi trường
+        # Environment info
         AllureReporter.environment_step(
             browser=request.config.getoption("--test-browser"),
             base_url="https://www.saucedemo.com/",
             environment="test"
         )
         
-        # Bước 1: Điều hướng tới trang login
+        # Step 1: Navigate to login page
         AllureReporter.navigate_to("https://www.saucedemo.com/")
         login_page = LoginPage(page)
         login_page.goto()

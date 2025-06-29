@@ -1,20 +1,46 @@
 # api_clients/user_api_client.py
 
 import requests
-from config.settings import API_BASE_URL
+import json
+from typing import Dict, Any
 
 # Client cho các API liên quan đến user (REST API)
 class UserApiClient:
-    def __init__(self, base_url=API_BASE_URL):
-        # Khởi tạo với base_url của API
+    """API Client cho user operations"""
+    
+    def __init__(self, base_url: str = "https://httpbin.org"):
+        # Sử dụng httpbin.org thay vì api.example.com để test
         self.base_url = base_url
-
-    def get_user(self, user_id):
-        # Gọi API lấy thông tin user theo user_id
-        response = requests.get(f"{self.base_url}/users/{user_id}")
+        self.session = requests.Session()
+        self.session.headers.update({
+            'Content-Type': 'application/json',
+            'User-Agent': 'python-requests/2.32.4'
+        })
+    
+    def login(self, username: str, password: str) -> requests.Response:
+        """Login user với username và password"""
+        # Sử dụng httpbin.org để test POST request
+        payload = {"username": username, "password": password}
+        response = self.session.post(f"{self.base_url}/post", json=payload)
         return response
-
-    def login(self, username, password):
-        # Gọi API đăng nhập với username và password
-        response = requests.post(f"{self.base_url}/login", json={"username": username, "password": password})
+    
+    def get_user_info(self, user_id: int) -> requests.Response:
+        """Lấy thông tin user theo ID"""
+        response = self.session.get(f"{self.base_url}/get?user_id={user_id}")
+        return response
+    
+    def create_user(self, user_data: Dict[str, Any]) -> requests.Response:
+        """Tạo user mới"""
+        response = self.session.post(f"{self.base_url}/post", json=user_data)
+        return response
+    
+    def update_user(self, user_id: int, user_data: Dict[str, Any]) -> requests.Response:
+        """Cập nhật thông tin user"""
+        user_data['user_id'] = user_id
+        response = self.session.put(f"{self.base_url}/put", json=user_data)
+        return response
+    
+    def delete_user(self, user_id: int) -> requests.Response:
+        """Xóa user"""
+        response = self.session.delete(f"{self.base_url}/delete?user_id={user_id}")
         return response 

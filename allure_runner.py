@@ -114,6 +114,11 @@ class AllureRunner:
             if not self.download_allure():
                 return False
         
+        # Đảm bảo allure_bin đã được set
+        if not self.allure_bin:
+            print("❌ Allure binary không được tìm thấy")
+            return False
+        
         cmd = [str(self.allure_bin), command]
         if args:
             cmd.extend(args)

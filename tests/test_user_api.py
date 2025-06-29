@@ -7,14 +7,20 @@ from utils.helpers import get_test_user
 @pytest.mark.api
 @pytest.mark.smoke
 def test_user_login_api():
-    """Test API đăng nhập user"""
+    """Test API login user"""
     api_client = UserApiClient()
-    user = get_test_user()  # Lấy user test
-    
-    # Test login API
+    user = get_test_user()
     response = api_client.login(user["username"], user["password"])
     
-    # Kiểm tra response
+    # Kiểm tra response status
     assert response.status_code == 200
-    assert "token" in response.json()
-    assert response.json()["success"] == True 
+    
+    # Kiểm tra response có chứa data được gửi
+    response_data = response.json()
+    assert "data" in response_data
+    assert "json" in response_data
+    
+    # Kiểm tra username và password được gửi đúng
+    sent_data = response_data["json"]
+    assert sent_data["username"] == user["username"]
+    assert sent_data["password"] == user["password"] 

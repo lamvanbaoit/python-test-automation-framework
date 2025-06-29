@@ -1,0 +1,272 @@
+name: Mass Testing - 1000 Test Cases
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'tests/**'
+      - 'pages/**'
+      - 'utils/**'
+      - 'config/**'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      test_count:
+        description: 'Number of tests to run'
+        required: false
+        default: '1000'
+        type: string
+      test_suite:
+        description: 'Test suite name'
+        required: false
+        default: 'regression_suite'
+        type: string
+      parallel_workers:
+        description: 'Number of parallel workers'
+        required: false
+        default: '8'
+        type: string
+
+jobs:
+  mass-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.11]
+        browser: [chromium]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Cache Playwright browsers
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ hashFiles('**/package.json') }}
+        restore-keys: |
+          ${{ runner.os }}-playwright-
+    
+    - name: Cache test data
+      uses: actions/cache@v3
+      with:
+        path: |
+          test_data/
+          test_suites/
+        key: ${{ runner.os }}-testdata-${{ hashFiles('test_data/**') }}
+        restore-keys: |
+          ${{ runner.os }}-testdata-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Install Playwright browsers
+      run: |
+        playwright install
+        playwright install-deps
+    
+    - name: Install Allure
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y allure
+    
+    - name: Setup test environment
+      run: |
+        # Create necessary directories
+        mkdir -p test_data/static test_data/dynamic test_suites/configs test_suites/reports
+        mkdir -p allure-results screenshots logs
+        
+        # Generate test data if not exists
+        python -c "
+        from test_data.test_data_manager import test_data_manager
+        test_data_manager.create_test_suite_data('${{ github.event.inputs.test_suite || 'regression_suite' }}', ${{ github.event.inputs.test_count || 1000 }})
+        "
+    
+    - name: Run mass tests with performance monitoring
+      run: |
+        # Set environment variables for mass testing
+        export MASS_TEST_MODE=true
+        export MAX_WORKERS=${{ github.event.inputs.parallel_workers || 8 }}
+        export HEADLESS=true
+        
+        # Run tests with mass testing optimizations
+        pytest tests/ \
+          --mass-test \
+          --test-suite="${{ github.event.inputs.test_suite || 'regression_suite' }}" \
+          --test-browser=${{ matrix.browser }} \
+          --headless \
+          -n ${{ github.event.inputs.parallel_workers || 8 }} \
+          --dist=loadfile \
+          --alluredir=allure-results \
+          --html=report.html \
+          --self-contained-html \
+          --capture=no \
+          --disable-warnings \
+          --timeout=300 \
+          --reruns=2 \
+          --reruns-delay=1 \
+          -v
+    
+    - name: Generate performance report
+      run: |
+        python -c "
+        from utils.performance_optimizer import performance_optimizer
+        from utils.test_suite_manager import test_suite_manager
+        
+        # Generate performance report
+        metrics = performance_optimizer.get_performance_report([])
+        print('Performance Report:', metrics)
+        
+        # Get suite metrics
+        suite_name = '${{ github.event.inputs.test_suite || 'regression_suite' }}'
+        suite_metrics = test_suite_manager.get_performance_metrics(suite_name)
+        print('Suite Metrics:', suite_metrics)
+        "
+    
+    - name: Generate Allure report
+      run: |
+        allure generate allure-results --clean -o allure-report
+    
+    - name: Upload Allure report
+      uses: actions/upload-artifact@v4
+      with:
+        name: allure-report-mass-testing-${{ matrix.browser }}
+        path: allure-report/
+        retention-days: 30
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-mass-testing-${{ matrix.browser }}
+        path: |
+          allure-results/
+          screenshots/
+          test.log
+          report.html
+        retention-days: 30
+    
+    - name: Upload performance data
+      uses: actions/upload-artifact@v4
+      with:
+        name: performance-data-${{ matrix.browser }}
+        path: |
+          test_suites/reports/
+          test_data/dynamic/
+        retention-days: 30
+    
+    - name: Cleanup resources
+      run: |
+        # Cleanup old files
+        python -c "
+        from utils.common_functions import CommonFunctions
+        CommonFunctions.cleanup_old_files('screenshots', 1)
+        CommonFunctions.cleanup_old_files('allure-results', 1)
+        "
+        
+        # Clear cache
+        python -c "
+        from utils.common_functions import CommonFunctions
+        CommonFunctions.clear_cache()
+        "
+    
+    - name: Test Summary
+      run: |
+        echo "=== Mass Testing Summary ==="
+        echo "Test Suite: ${{ github.event.inputs.test_suite || 'regression_suite' }}"
+        echo "Test Count: ${{ github.event.inputs.test_count || 1000 }}"
+        echo "Parallel Workers: ${{ github.event.inputs.parallel_workers || 8 }}"
+        echo "Browser: ${{ matrix.browser }}"
+        echo "Python Version: ${{ matrix.python-version }}"
+        echo "=========================="
+
+  performance-analysis:
+    runs-on: ubuntu-latest
+    needs: mass-test
+    if: always()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Download test results
+      uses: actions/download-artifact@v4
+      with:
+        name: test-results-mass-testing-chromium
+        path: test-results/
+    
+    - name: Download performance data
+      uses: actions/download-artifact@v4
+      with:
+        name: performance-data-chromium
+        path: performance-data/
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Analyze performance
+      run: |
+        python -c "
+        import json
+        import os
+        
+        # Analyze test results
+        if os.path.exists('test-results/allure-results'):
+            print('Allure results found')
+        
+        # Analyze performance data
+        if os.path.exists('performance-data'):
+            for file in os.listdir('performance-data'):
+                if file.endswith('.json'):
+                    with open(f'performance-data/{file}', 'r') as f:
+                        data = json.load(f)
+                        print(f'Performance data from {file}:', data)
+        
+        print('Performance analysis completed')
+        "
+    
+    - name: Generate performance insights
+      run: |
+        echo "=== Performance Insights ==="
+        echo "Analysis completed for mass testing run"
+        echo "Check artifacts for detailed reports"
+        echo "================================"
+
+  notification:
+    runs-on: ubuntu-latest
+    needs: [mass-test, performance-analysis]
+    if: always()
+    
+    steps:
+    - name: Notify completion
+      run: |
+        echo "Mass testing workflow completed"
+        echo "Check artifacts for detailed results"
+        
+        if [ "${{ needs.mass-test.result }}" == "success" ]; then
+          echo "✅ Mass testing passed"
+        else
+          echo "❌ Mass testing failed"
+        fi 

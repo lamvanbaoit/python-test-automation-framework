@@ -2,34 +2,60 @@
 
 # Định nghĩa các selector cho các trang (login, inventory, cart) để dễ tái sử dụng và bảo trì
 
+"""
+Login Page Locators
+==================
+
+Chứa tất cả các selectors và locators cho Login page.
+"""
+
+# Selectors cho Login page (SauceDemo)
 LOGIN_PAGE_SELECTORS = {
-    # Selector cho ô nhập username
-    "username": 'input[data-test="username"]',
-    # Selector cho ô nhập password
-    "password": 'input[data-test="password"]',
-    # Selector cho nút login
-    "login_button": 'input[data-test="login-button"]',
-    # Selector cho thông báo lỗi khi login
-    "error_message": 'h3[data-test="error"]',
-    # Selector cho container của trang login
-    "login_container": ".login_container"
+    # Form fields
+    "username": "#user-name",
+    "password": "#password",
+    "login_button": "#login-button",
+    
+    # Error message
+    "error_message": "[data-test='error']",
+    
+    # Success elements
+    "user_name": ".user-name",
+    "logout_button": "#logout_sidebar_link",
+    
+    # Form container
+    "login_form": ".login-box",
+    
+    # Additional elements
+    "new_user_button": "#newUser",
+    "register_link": "text=New User",
 }
 
+# Selectors cho Inventory page (SauceDemo)
 INVENTORY_PAGE_SELECTORS = {
-    # Selector cho danh sách sản phẩm
+    # Container chính
     "inventory_container": ".inventory_list",
-    # Selector cho từng sản phẩm
+    
+    # Danh sách sản phẩm
     "inventory_items": ".inventory_item",
-    # Selector cho nút giỏ hàng
+    
+    # Nút giỏ hàng
     "cart_button": ".shopping_cart_link",
-    # Selector cho badge số lượng sản phẩm trong giỏ
     "cart_badge": ".shopping_cart_badge",
-    # Selector cho dropdown sắp xếp sản phẩm
+    
+    # Dropdown sắp xếp
     "sort_dropdown": "[data-test='product_sort_container']",
-    # Selector cho nút menu
+    
+    # Menu
     "menu_button": "#react-burger-menu-btn",
-    # Selector cho link logout
-    "logout_link": "#logout_sidebar_link"
+    "menu_items": ".bm-menu",
+    
+    # Footer
+    "footer": ".footer",
+    
+    # Profile elements
+    "profile_header": ".inventory_details_name",
+    "user_info": ".user-info",
 }
 
 CART_PAGE_SELECTORS = {
