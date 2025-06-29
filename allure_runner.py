@@ -13,17 +13,20 @@ import tarfile
 import platform
 from pathlib import Path
 
+# Lớp hỗ trợ cài đặt và chạy Allure local cho project mà không cần cài đặt toàn cục
 class AllureRunner:
     """Allure Runner class để cài đặt và chạy Allure local"""
     
     def __init__(self):
+        # Thư mục project
         self.project_dir = Path(__file__).parent
+        # Thư mục chứa allure-commandline
         self.allure_dir = self.project_dir / "allure-commandline"
         self.allure_bin = None
         self.allure_version = "2.24.0"
         
     def get_system_info(self):
-        """Lấy thông tin hệ thống"""
+        """Lấy thông tin hệ điều hành hiện tại"""
         system = platform.system().lower()
         machine = platform.machine().lower()
         
@@ -37,7 +40,7 @@ class AllureRunner:
             raise Exception(f"Unsupported system: {system}")
     
     def get_allure_url(self):
-        """Lấy URL download Allure"""
+        """Lấy URL download Allure phù hợp hệ điều hành"""
         system = self.get_system_info()
         base_url = f"https://repo.maven.apache.org/maven2/io/qameta/allure/allure-commandline/{self.allure_version}"
         
@@ -49,7 +52,7 @@ class AllureRunner:
             return f"{base_url}/allure-commandline-{self.allure_version}.tgz"
     
     def download_allure(self):
-        """Download và cài đặt Allure"""
+        """Download và cài đặt Allure vào thư mục project"""
         if self.allure_dir.exists():
             print(f"✅ Allure đã được cài đặt tại: {self.allure_dir}")
             return True
@@ -64,11 +67,11 @@ class AllureRunner:
         archive_path = self.project_dir / archive_name
         
         try:
-            # Download
+            # Download file nén
             urllib.request.urlretrieve(url, archive_path)
             print(f"✅ Download thành công: {archive_name}")
             
-            # Extract
+            # Giải nén file
             print("📦 Đang extract...")
             if archive_name.endswith(".zip"):
                 with zipfile.ZipFile(archive_path, 'r') as zip_ref:
@@ -77,23 +80,23 @@ class AllureRunner:
                 with tarfile.open(archive_path, 'r:gz') as tar_ref:
                     tar_ref.extractall(self.project_dir)
             
-            # Rename directory
+            # Đổi tên thư mục extract thành allure-commandline
             extracted_dir = self.project_dir / f"allure-{self.allure_version}"
             if extracted_dir.exists():
                 extracted_dir.rename(self.allure_dir)
             
-            # Set binary path
+            # Xác định đường dẫn file chạy allure
             system = self.get_system_info()
             if system == "windows":
                 self.allure_bin = self.allure_dir / "bin" / "allure.bat"
             else:
                 self.allure_bin = self.allure_dir / "bin" / "allure"
             
-            # Make executable (Unix systems)
+            # Set quyền thực thi cho file allure (Unix)
             if system != "windows":
                 os.chmod(self.allure_bin, 0o755)
             
-            # Clean up
+            # Xoá file nén sau khi giải nén
             archive_path.unlink()
             
             print(f"✅ Allure đã được cài đặt tại: {self.allure_dir}")
@@ -106,7 +109,7 @@ class AllureRunner:
             return False
     
     def run_allure(self, command, args=None):
-        """Chạy Allure command"""
+        """Chạy lệnh Allure với các tham số truyền vào"""
         if not self.allure_bin or not self.allure_bin.exists():
             if not self.download_allure():
                 return False
@@ -129,19 +132,19 @@ class AllureRunner:
             return False
     
     def serve(self, results_dir="allure-results"):
-        """Serve Allure report"""
+        """Chạy allure serve để mở report dạng web server"""
         return self.run_allure("serve", [results_dir])
     
     def generate(self, results_dir="allure-results", output_dir="allure-report"):
-        """Generate Allure HTML report"""
+        """Chạy allure generate để tạo HTML report"""
         return self.run_allure("generate", [results_dir, "--clean", "-o", output_dir])
     
     def open(self, report_dir="allure-report"):
-        """Open Allure report"""
+        """Chạy allure open để mở report HTML đã generate"""
         return self.run_allure("open", [report_dir])
 
 def main():
-    """Main function"""
+    """Hàm main để chạy script allure_runner.py từ command line"""
     runner = AllureRunner()
     
     if len(sys.argv) < 2:

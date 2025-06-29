@@ -10,6 +10,7 @@ import webbrowser
 import time
 from pathlib import Path
 
+# Hàm kiểm tra xem Allure đã được cài đặt chưa (global, npm, local)
 def check_allure_installation():
     """Kiểm tra Allure đã cài chưa"""
     # Thử allure global
@@ -20,7 +21,7 @@ def check_allure_installation():
     except FileNotFoundError:
         pass
     
-    # Thử npx allure
+    # Thử npx allure (cài qua npm)
     try:
         result = subprocess.run(["npx", "allure", "--version"], capture_output=True, text=True)
         if result.returncode == 0:
@@ -28,7 +29,7 @@ def check_allure_installation():
     except FileNotFoundError:
         pass
     
-    # Thử allure_runner.py
+    # Thử allure_runner.py (cài local trong project)
     if os.path.exists("allure_runner.py"):
         try:
             result = subprocess.run(["python", "allure_runner.py", "serve"], capture_output=True, text=True)
@@ -39,6 +40,7 @@ def check_allure_installation():
     
     return None
 
+# Hàm mở report bằng chế độ serve (dùng web server)
 def open_report_serve(results_dir="allure-results", port=8080):
     """Mở report với serve mode"""
     allure_type = check_allure_installation()
@@ -57,10 +59,13 @@ def open_report_serve(results_dir="allure-results", port=8080):
     
     try:
         if allure_type == "global":
+            # Dùng allure global
             subprocess.run(["allure", "serve", results_dir, "--port", str(port)])
         elif allure_type == "npm":
+            # Dùng npx allure
             subprocess.run(["npx", "allure", "serve", results_dir, "--port", str(port)])
         else:  # local
+            # Dùng script local
             subprocess.run(["python", "allure_runner.py", "serve", results_dir])
         return True
     except KeyboardInterrupt:
@@ -70,6 +75,7 @@ def open_report_serve(results_dir="allure-results", port=8080):
         print(f"❌ Lỗi: {e}")
         return False
 
+# Hàm generate report ra HTML và tự động mở file index.html
 def open_report_generate(results_dir="allure-results", output_dir="allure-report"):
     """Generate và mở HTML report"""
     allure_type = check_allure_installation()
@@ -91,7 +97,7 @@ def open_report_generate(results_dir="allure-results", output_dir="allure-report
         
         print(f"✅ Report được tạo tại: {output_dir}/")
         
-        # Mở report
+        # Mở report bằng browser
         report_path = Path(output_dir) / "index.html"
         if report_path.exists():
             print(f"🌐 Mở report: {report_path}")
@@ -105,6 +111,7 @@ def open_report_generate(results_dir="allure-results", output_dir="allure-report
         print(f"❌ Lỗi khi generate report: {e}")
         return False
 
+# Hàm mở trực tiếp file index.html từ thư mục report đã có
 def open_report_direct(report_dir="allure-report"):
     """Mở report trực tiếp từ thư mục có sẵn"""
     report_path = Path(report_dir) / "index.html"
@@ -119,6 +126,7 @@ def open_report_direct(report_dir="allure-report"):
     webbrowser.open(f"file://{report_path.absolute()}")
     return True
 
+# Hàm main để chạy script từ command line
 def main():
     """Main function"""
     print("🎯 Allure Report Opener")
@@ -140,21 +148,24 @@ def main():
     command = sys.argv[1]
     
     if command == "serve":
+        # Mở report bằng serve mode (web server)
         results_dir = sys.argv[2] if len(sys.argv) > 2 else "allure-results"
         port = int(sys.argv[3]) if len(sys.argv) > 3 else 8080
         open_report_serve(results_dir, port)
         
     elif command == "generate":
+        # Generate report ra HTML và mở file index.html
         results_dir = sys.argv[2] if len(sys.argv) > 2 else "allure-results"
         output_dir = sys.argv[3] if len(sys.argv) > 3 else "allure-report"
         open_report_generate(results_dir, output_dir)
         
     elif command == "open":
+        # Mở trực tiếp file index.html từ thư mục report
         report_dir = sys.argv[2] if len(sys.argv) > 2 else "allure-report"
         open_report_direct(report_dir)
         
     elif command == "auto":
-        # Tự động detect và mở report
+        # Tự động detect và mở report phù hợp
         print("🔍 Tự động detect và mở report...")
         
         # Kiểm tra có results không

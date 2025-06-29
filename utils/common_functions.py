@@ -8,12 +8,13 @@ import logging
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 
+# Lớp chứa các hàm tiện ích dùng chung cho test automation
 class CommonFunctions:
     """Các hàm tiện ích dùng chung cho test automation"""
     
     @staticmethod
     def generate_random_string(length: int = 8) -> str:
-        """Tạo chuỗi ngẫu nhiên"""
+        """Tạo chuỗi ngẫu nhiên gồm chữ và số"""
         return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
     
     @staticmethod
@@ -30,7 +31,7 @@ class CommonFunctions:
     
     @staticmethod
     def generate_test_data(data_type: str, **kwargs) -> Dict[str, Any]:
-        """Tạo dữ liệu test theo loại"""
+        """Tạo dữ liệu test mẫu theo loại (user, order, product, ...)"""
         if data_type == "user":
             return {
                 "username": f"testuser_{CommonFunctions.generate_random_string(4)}",
@@ -56,7 +57,7 @@ class CommonFunctions:
     
     @staticmethod
     def save_screenshot_with_metadata(page, name: str = "", metadata: Optional[Dict] = None) -> str:
-        """Chụp screenshot với metadata"""
+        """Chụp screenshot và lưu kèm metadata (nếu có)"""
         if not name:
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             name = f"screenshot_{timestamp}.png"
@@ -78,7 +79,7 @@ class CommonFunctions:
     
     @staticmethod
     def wait_for_page_load(page, timeout: int = 30000) -> bool:
-        """Đợi trang load xong"""
+        """Chờ trang load xong (networkidle)"""
         try:
             page.wait_for_load_state("networkidle", timeout=timeout)
             return True
@@ -88,7 +89,7 @@ class CommonFunctions:
     
     @staticmethod
     def retry_action(action_func, max_retries: int = 3, delay: float = 1.0):
-        """Thực hiện action với retry"""
+        """Thực hiện một action với số lần thử lại (retry) nếu gặp lỗi"""
         for attempt in range(max_retries):
             try:
                 return action_func()
@@ -101,7 +102,7 @@ class CommonFunctions:
     
     @staticmethod
     def validate_response(response, expected_status: int = 200, expected_fields: Optional[List[str]] = None):
-        """Validate response từ API"""
+        """Kiểm tra response trả về từ API (status code, các trường bắt buộc)"""
         assert response.status_code == expected_status, f"Expected status {expected_status}, got {response.status_code}"
         
         if expected_fields:
@@ -111,7 +112,7 @@ class CommonFunctions:
     
     @staticmethod
     def create_test_user_data(count: int = 1) -> List[Dict]:
-        """Tạo danh sách user test data"""
+        """Tạo danh sách user test data mẫu"""
         users = []
         for i in range(count):
             user = CommonFunctions.generate_test_data("user")
@@ -121,7 +122,7 @@ class CommonFunctions:
     
     @staticmethod
     def log_test_info(test_name: str, data: Optional[Dict] = None):
-        """Log thông tin test"""
+        """Ghi log thông tin test (tên, dữ liệu, ...)"""
         logging.info(f"=== Test: {test_name} ===")
         if data:
             for key, value in data.items():
@@ -130,17 +131,17 @@ class CommonFunctions:
     
     @staticmethod
     def get_file_path(relative_path: str) -> str:
-        """Lấy đường dẫn tuyệt đối của file"""
+        """Lấy đường dẫn tuyệt đối của file từ đường dẫn tương đối"""
         return os.path.abspath(relative_path)
     
     @staticmethod
     def ensure_directory_exists(directory: str):
-        """Đảm bảo thư mục tồn tại"""
+        """Đảm bảo thư mục tồn tại, nếu chưa có thì tạo mới"""
         os.makedirs(directory, exist_ok=True)
     
     @staticmethod
     def read_json_file(file_path: str) -> Dict:
-        """Đọc file JSON"""
+        """Đọc file JSON và trả về dict, nếu lỗi trả về dict rỗng"""
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 return json.load(f)
@@ -150,7 +151,7 @@ class CommonFunctions:
     
     @staticmethod
     def write_json_file(file_path: str, data: Dict):
-        """Ghi file JSON"""
+        """Ghi dict vào file JSON"""
         try:
             with open(file_path, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
@@ -158,17 +159,18 @@ class CommonFunctions:
         except Exception as e:
             logging.error(f"Error writing JSON file {file_path}: {e}")
 
-# Các hàm tiện ích nhanh
+# Các hàm tiện ích nhanh cho test
+
 def get_random_user() -> Dict[str, str]:
     """Lấy user ngẫu nhiên (tương thích với code cũ)"""
     return CommonFunctions.generate_test_data("user")
 
 def get_test_users(count: int = 5) -> List[Dict[str, str]]:
-    """Lấy danh sách user test"""
+    """Lấy danh sách user test mẫu"""
     return CommonFunctions.create_test_user_data(count)
 
 def take_screenshot_with_info(page, test_name: str, info: str = ""):
-    """Chụp screenshot với thông tin test"""
+    """Chụp screenshot kèm thông tin test (tên, timestamp, mô tả)"""
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     name = f"{test_name}_{timestamp}.png"
     metadata = {

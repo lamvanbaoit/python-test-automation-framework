@@ -7,6 +7,7 @@ from pages.inventory_page import InventoryPage
 from utils.allure_helpers import AllureReporter
 from utils.common_functions import CommonFunctions
 
+# Test class kiểm thử các chức năng liên quan đến trang Inventory với Allure report
 @allure.feature("Inventory Management")
 @allure.story("Product Inventory")
 class TestInventoryWithAllure:
@@ -14,9 +15,9 @@ class TestInventoryWithAllure:
     @allure.testcase("TC002", "Inventory Page Load")
     @allure.severity(allure.severity_level.CRITICAL)
     def test_inventory_page_load(self, page):
-        """Test inventory page loads correctly after login"""
+        """Test kiểm tra trang inventory load đúng sau khi đăng nhập"""
         
-        # Step 1: Login first
+        # Bước 1: Đăng nhập trước
         AllureReporter.navigate_to("https://www.saucedemo.com/")
         login_page = LoginPage(page)
         login_page.goto()
@@ -33,33 +34,33 @@ class TestInventoryWithAllure:
         AllureReporter.click_element_step("Login Button", login_page.selectors["login_button"])
         login_page.click_button(login_page.selectors["login_button"])
         
-        # Step 2: Verify login success
+        # Bước 2: Kiểm tra đăng nhập thành công
         AllureReporter.assert_step("Login successful", True, login_page.is_logged_in())
         assert login_page.is_logged_in(), "Login failed"
         
-        # Step 3: Navigate to inventory page
+        # Bước 3: Điều hướng tới trang inventory
         AllureReporter.navigate_to("https://www.saucedemo.com/inventory.html")
         inventory_page = InventoryPage(page)
         inventory_page.goto()
         
-        # Step 4: Validate inventory page
+        # Bước 4: Kiểm tra trang inventory
         AllureReporter.validate_element_step("Inventory page loaded", "visible")
         inventory_page.validate_inventory_page()
         
-        # Step 5: Take screenshot
+        # Bước 5: Chụp màn hình
         AllureReporter.take_screenshot_step(page, "Inventory Page Loaded")
         inventory_page.take_inventory_screenshot("Inventory Page After Login")
         
-        # Step 6: Verify page elements
+        # Bước 6: Kiểm tra các thành phần trang
         AllureReporter.assert_step("Inventory page loaded", True, inventory_page.is_inventory_page_loaded())
         assert inventory_page.is_inventory_page_loaded(), "Inventory page not loaded"
     
     @allure.testcase("TC003", "Add Item to Cart")
     @allure.severity(allure.severity_level.NORMAL)
     def test_add_item_to_cart(self, page):
-        """Test adding item to cart"""
+        """Test kiểm tra thêm sản phẩm vào giỏ hàng"""
         
-        # Step 1: Login and navigate to inventory
+        # Bước 1: Đăng nhập và vào inventory
         login_page = LoginPage(page)
         login_page.goto()
         
@@ -69,31 +70,31 @@ class TestInventoryWithAllure:
         inventory_page = InventoryPage(page)
         inventory_page.goto()
         
-        # Step 2: Get initial cart count
+        # Bước 2: Lấy số lượng sản phẩm trong giỏ ban đầu
         initial_count = inventory_page.get_cart_count()
         AllureReporter.test_data_step("Initial cart count", {"count": initial_count})
         
-        # Step 3: Add item to cart
+        # Bước 3: Thêm sản phẩm vào giỏ
         item_name = "sauce-labs-backpack"
         AllureReporter.fill_field_step("Item to add", item_name)
         inventory_page.add_item_to_cart(item_name)
         
-        # Step 4: Verify cart count increased
+        # Bước 4: Kiểm tra số lượng sản phẩm tăng
         new_count = inventory_page.get_cart_count()
         AllureReporter.test_data_step("New cart count", {"count": new_count})
         
         AllureReporter.assert_step("Cart count increased", True, new_count > initial_count)
         assert new_count > initial_count, f"Cart count should increase from {initial_count} to {new_count}"
         
-        # Step 5: Take screenshot
+        # Bước 5: Chụp màn hình
         AllureReporter.take_screenshot_step(page, "Item Added to Cart")
     
     @allure.testcase("TC004", "Sort Inventory Items")
     @allure.severity(allure.severity_level.NORMAL)
     def test_sort_inventory_items(self, page):
-        """Test sorting inventory items"""
+        """Test kiểm tra sắp xếp sản phẩm trên trang inventory"""
         
-        # Step 1: Login and navigate to inventory
+        # Bước 1: Đăng nhập và vào inventory
         login_page = LoginPage(page)
         login_page.goto()
         
@@ -103,23 +104,23 @@ class TestInventoryWithAllure:
         inventory_page = InventoryPage(page)
         inventory_page.goto()
         
-        # Step 2: Sort by price low to high
+        # Bước 2: Sắp xếp theo giá tăng dần
         sort_option = "lohi"  # low to high
         AllureReporter.fill_field_step("Sort option", sort_option)
         inventory_page.sort_items_by(sort_option)
         
-        # Step 3: Verify sorting (basic check)
+        # Bước 3: Kiểm tra đã sắp xếp (kiểm tra cơ bản)
         AllureReporter.assert_step("Sorting applied", True, True)
         
-        # Step 4: Take screenshot
+        # Bước 4: Chụp màn hình
         AllureReporter.take_screenshot_step(page, "Items Sorted by Price")
     
     @allure.testcase("TC005", "Inventory Page Elements")
     @allure.severity(allure.severity_level.MINOR)
     def test_inventory_page_elements(self, page):
-        """Test all inventory page elements are present"""
+        """Test kiểm tra các thành phần chính trên trang inventory"""
         
-        # Step 1: Login and navigate to inventory
+        # Bước 1: Đăng nhập và vào inventory
         login_page = LoginPage(page)
         login_page.goto()
         
@@ -129,7 +130,7 @@ class TestInventoryWithAllure:
         inventory_page = InventoryPage(page)
         inventory_page.goto()
         
-        # Step 2: Validate all elements
+        # Bước 2: Kiểm tra các thành phần chính
         AllureReporter.validate_element_step("Inventory container", "visible")
         assert inventory_page.page.locator(inventory_page.selectors["inventory_container"]).is_visible()
         
@@ -142,5 +143,5 @@ class TestInventoryWithAllure:
         AllureReporter.validate_element_step("Menu button", "visible")
         assert inventory_page.page.locator(inventory_page.selectors["menu_button"]).is_visible()
         
-        # Step 3: Take screenshot
+        # Bước 3: Chụp màn hình
         AllureReporter.take_screenshot_step(page, "All Elements Present") 
