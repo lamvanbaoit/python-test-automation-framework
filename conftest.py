@@ -42,7 +42,7 @@ def pytest_addoption(parser):
     parser.addoption(
         "--headless",
         action="store_true",
-        default=False,
+        default=None,
         help="Run browser in headless mode"
     )
 
@@ -53,7 +53,27 @@ def pytest_addoption(parser):
 def browser_type_launch_args(request):
     """Cấu hình các tham số khi khởi tạo browser"""
     browser = request.config.getoption("--test-browser")
-    headless = request.config.getoption("--headless")
+    headless_option = request.config.getoption("--headless")
+    
+    # Tự động detect CI environment và set headless=True
+    # Kiểm tra các biến môi trường CI phổ biến
+    ci_environment = any([
+        os.getenv('CI') == 'true',
+        os.getenv('GITHUB_ACTIONS') == 'true',
+        os.getenv('TRAVIS') == 'true',
+        os.getenv('CIRCLECI') == 'true',
+        os.getenv('JENKINS_URL') is not None,
+        os.getenv('BUILD_ID') is not None,
+        os.getenv('DISPLAY') is None and os.name != 'nt'  # Linux/Unix không có DISPLAY
+    ])
+    
+    # Nếu không có option --headless được chỉ định, tự động detect
+    if headless_option is None:
+        headless = ci_environment
+        print(f"🔍 Auto-detect headless mode: {headless} (CI: {ci_environment})")
+    else:
+        headless = headless_option
+        print(f"🎯 Manual headless mode: {headless}")
     
     if browser == "chromium":
         return {

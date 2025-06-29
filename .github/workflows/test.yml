@@ -46,9 +46,9 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y allure
     
-    - name: Run tests with Allure
+    - name: Run tests with Allure (Headless mode)
       run: |
-        pytest tests/ --alluredir=allure-results --test-browser=${{ matrix.browser }} -v
+        pytest tests/ --alluredir=allure-results --test-browser=${{ matrix.browser }} --headless -v
     
     - name: Generate Allure report
       run: |
@@ -101,9 +101,9 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y allure
     
-    - name: Run tests in parallel
+    - name: Run tests in parallel (Headless mode)
       run: |
-        pytest tests/ --alluredir=allure-results -n auto -v
+        pytest tests/ --alluredir=allure-results --headless -n auto -v
     
     - name: Generate Allure report
       run: |
